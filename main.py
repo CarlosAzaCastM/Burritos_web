@@ -19,10 +19,10 @@ def main(page: ft.Page):
     page.scroll = ft.ScrollMode.AUTO 
 
     db = Database(
-        dbname="burritos",
-        user="postgres",
-        password="Ambar72$",
-        host="localhost"
+        dbname="burritosbd",
+        user="root",
+        password="8ETAhe0iScPkNlNnEXwrQHGQgqy59iIu",
+        host="d1rj3615pdvs73e5oi10-a.oregon-postgres.render.com"
     )
     
     # Contenedor principal que cambiará entre vistas
