@@ -1,4 +1,3 @@
-#esto es un comentario de prueba
 #main.py
 import flet as ft
 from inicio_sesion import InicioSesion
