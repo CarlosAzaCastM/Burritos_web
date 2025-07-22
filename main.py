@@ -1,5 +1,6 @@
 #esto es un comentario de prueba
 #main.py
+import logging
 import flet as ft
 from inicio_sesion import InicioSesion
 from registro import Registro
