@@ -56,9 +56,9 @@ def main(page: ft.Page):
             on_pedir_burritos=lambda e: show_menu(usuario_data, db=db),
             on_actulizar=lambda e: show_actulizar(usuario_data, db=db),
             on_go_login=lambda e: show_login(),
-            on_corte=lambda e: show_corte_pedido_detalles(usuario_data, "Corte"),
-            on_pedido=lambda e: show_corte_pedido_detalles(usuario_data, "Pedido"),
-            on_detalles=lambda e: show_corte_pedido_detalles(usuario_data, "Detalles"),
+            on_corte=lambda e: show_corte_pedido_detalles(usuario_data, "Corte", db=db),
+            on_pedido=lambda e: show_corte_pedido_detalles(usuario_data, "Pedido", db=db),
+            on_detalles=lambda e: show_corte_pedido_detalles(usuario_data, "Detalles", db=db),
             on_stock=lambda e: show_stock(usuario_data,db=db),
             matricula_usu=usuario_data['matricula_usu']
         ))
@@ -89,11 +89,12 @@ def main(page: ft.Page):
         ))
         page.update()
 
-    def show_corte_pedido_detalles(usuario_data, pantalla):
+    def show_corte_pedido_detalles(usuario_data, pantalla, db):
         main_container.controls.clear()
         main_container.controls.append(CortePedidoDetalles(  
             on_go_home=lambda e: show_menu_elecciones(usuario_data),
-            titulo = pantalla
+            titulo = pantalla,
+            db=db
         ))
         page.update()
 

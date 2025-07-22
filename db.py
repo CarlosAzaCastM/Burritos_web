@@ -183,13 +183,12 @@ class Database:
             logging.error(f"Error al actualizar stock: {e}")
             return False        
         
-    def obtener_pedidos_hoy(self, limite=50):
+    def obtener_pedidos(self, limite=50):
         """Obtiene hasta 50 pedidos del día"""
         query = """
-            SELECT p.id_pedido, u.nombre_usu, p.fecha_pedido, p.hora_pedido, p.total_pedido
+            SELECT p.id_pedido, u.nombre_usu, p.fecha_pedido, p.total_pedido
             FROM "Pedido" p
             JOIN "Usuario" u ON p.id_usuario = u.id_usuario
-            WHERE p.fecha = CURRENT_DATE 
             ORDER BY p.id_pedido DESC 
             LIMIT %s
         """
@@ -201,17 +200,39 @@ class Database:
             logging.error(f"Error al obtener pedidos del día: {e}")
             return []
         
-    def limpiar_pedidos_antiguos(Self):
-        """Elimina los pedidos que no sean del día actual"""
+    def obtener_pedidoDestales(self, limite=50):
+        """Obtiene hasta 50 pedidos del día"""
         query = """
-            DELETE FROM "Pedido" 
-            WHERE fecha < CURRENT_DATE - INTERVAL '30 days'
+            SELECT d.id_detalle, d.id_pedido, p.nombre_prod, d.cantidad_detalle, d.subtotal_detalle
+			FROM "DetallePedido" d
+            JOIN "Producto" p ON d.id_producto = p.id_producto
+            LIMIT %s
         """
         try:
-            with Self.connection.cursor() as cursor:
-                cursor.execute(query)
-                Self.connection.commit()
+            with self.connection.cursor() as cursor:
+                cursor.execute(query,(limite,))
+                return cursor.fetchall()
         except Exception as e:
-            logging.error(f"Error al limpiar pedidos antiguos: {e}")
-            Self.connection.rollback()     
-            logging.error(f"Error al limpiar pedidos antiguos: {e}")    
+            logging.error(f"Error al obtener pedidos del día: {e}")
+            return []
+        
+    def obtener_corte(self, limite=50):
+        """Obtiene hasta 50 pedidos del día"""
+        query = """
+            SELECT 
+                c.id_corte_diario,
+                p.nombre_prod,
+                c.venta_total_dia,
+                c.fecha_corte
+            FROM "CorteDiario" c
+            JOIN "Producto" p ON c.producto_mas_vendido = p.id_producto
+            LIMIT %s;
+        """
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query,(limite,))
+                return cursor.fetchall()
+        except Exception as e:
+            logging.error(f"Error al obtener pedidos del día: {e}")
+            return []
+        
