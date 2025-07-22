@@ -181,4 +181,37 @@ class Database:
         except Exception as e:
             self.connection.rollback()
             logging.error(f"Error al actualizar stock: {e}")
-            return False
+            return False        
+        
+    def obtener_pedidos_hoy(self, limite=50):
+        """Obtiene hasta 50 pedidos del día"""
+        query = """
+            SELECT p.id_pedido, u.nombre_usu, p.fecha_pedido, p.hora_pedido, p.total_pedido
+            FROM "Pedido" p
+            JOIN "Usuario" u ON p.id_usuario = u.id_usuario
+            WHERE p.fecha = CURRENT_DATE 
+            ORDER BY p.id_pedido DESC 
+            LIMIT %s
+        """
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query,(limite,))
+                return cursor.fetchall()
+        except Exception as e:
+            logging.error(f"Error al obtener pedidos del día: {e}")
+            return []
+        
+    def limpiar_pedidos_antiguos(Self):
+        """Elimina los pedidos que no sean del día actual"""
+        query = """
+            DELETE FROM "Pedido" 
+            WHERE fecha < CURRENT_DATE - INTERVAL '30 days'
+        """
+        try:
+            with Self.connection.cursor() as cursor:
+                cursor.execute(query)
+                Self.connection.commit()
+        except Exception as e:
+            logging.error(f"Error al limpiar pedidos antiguos: {e}")
+            Self.connection.rollback()     
+            logging.error(f"Error al limpiar pedidos antiguos: {e}")    
