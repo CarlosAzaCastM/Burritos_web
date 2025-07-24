@@ -1,5 +1,6 @@
 #menu.py
 import flet as ft
+from whatstest import WhatsTest
 
 from datetime import datetime
 
@@ -11,6 +12,8 @@ class Menu(ft.Column):
         super().__init__(expand=True)
 
         self.fecha_actual = datetime.now()
+
+        self.whatsapp = WhatsTest()
 
         self.idUsuario = id_usuario
         self.nombre = nombre
@@ -362,7 +365,7 @@ class Menu(ft.Column):
 
     def click_enviar(self, e):
 
-        print(self.ids_productos[self.verificarCodigo()])
+        self.whatsapp.enviarMensaje()
 
     def existencia(self, id, nombreProd, text_widget: ft.Text, btnMas : ft.IconButton, btnMenos : ft.IconButton):
         resultado = self.db.existenciaText_producto(id)
