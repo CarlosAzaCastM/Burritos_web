@@ -226,6 +226,9 @@ class Registro(ft.Column):
                 aulaIngles_usu=self.fieldAulaIngles.value,
                 salonIngles_usu=self.fieldSalonIngles.value
             )
+            snackBar = ft.SnackBar(ft.Text("Registrado con exito", color=ft.Colors.WHITE),bgcolor=ft.Colors.GREEN)
+            self.page.open(snackBar)
+            self.page.update()
             
             # Éxito, volver a inicio de sesión
             self.on_register_success(e)

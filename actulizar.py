@@ -177,9 +177,13 @@ class Actulizar(ft.Column):
                 salonIngles_usu=self.fieldSalonIngles.value,
                 matricula_usu=self.datos_usu['matricula_usu']
             )
+
+            snackBar = ft.SnackBar(ft.Text("Usuario actulizado", color=ft.Colors.WHITE),bgcolor=ft.Colors.GREEN)
+            self.page.open(snackBar)
+            self.page.update()
             
             if updated:
-                print("Llega aca")
+                
                 # Actualizar los datos locales (usuario_data)
                 self.datos_usu.update({
                     'aula_usu': self.dropdownAula.value,
@@ -188,10 +192,7 @@ class Actulizar(ft.Column):
                     'salonIngles_usu': self.fieldSalonIngles.value,
                 })
                 
-                # Mostrar mensaje de éxito
                 
-
-                self.page.open(self.snack_bar)
                 
             else:
                 self.page.snack_bar = ft.SnackBar(

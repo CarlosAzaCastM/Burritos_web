@@ -366,6 +366,9 @@ class Menu(ft.Column):
     def click_enviar(self, e):
 
         self.whatsapp.enviarMensaje()
+        snackBar = ft.SnackBar(ft.Text("Enviado", color=ft.Colors.WHITE),bgcolor=ft.Colors.GREEN)
+        self.page.open(snackBar)
+        self.page.update()
 
     def existencia(self, id, nombreProd, text_widget: ft.Text, btnMas : ft.IconButton, btnMenos : ft.IconButton):
         resultado = self.db.existenciaText_producto(id)

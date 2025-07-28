@@ -104,13 +104,15 @@ class InicioSesion(ft.Column):
             if self.db.verificar_credenciales(
                 matricula_usu=self.fieldMatricula.value,
                 contraseña_usu=self.fieldPassword.value
-            ):
+            ): 
                 usuario = self.db.obtener_usuario_completo_por_matricula(self.fieldMatricula.value)
+                snackBar = ft.SnackBar(ft.Text(f"Bienvenido", color=ft.Colors.WHITE),bgcolor=ft.Colors.GREEN)
+                self.page.open(snackBar)
+                self.page.update()
                 if usuario:
-                    self.error_message.visible = False
-                    # No llames a update aquí, la transición de página lo hará
+                    self.error_message.visible = False                    
                     self.on_login_success(e, usuario[0])
-                    return  # Sal del método después de la transición
+                    return  
                 else:
                     self.error_message.value = "Error al obtener datos del usuario"
             else:
@@ -118,7 +120,7 @@ class InicioSesion(ft.Column):
             
             self.error_message.visible = True
             if hasattr(self, 'page'):  # Verifica si el control está en una página
-                self.update()
+                self.update()            
                 
         except Exception as ex:
             self.error_message.value = f"Error al iniciar sesión: {str(ex)}"
