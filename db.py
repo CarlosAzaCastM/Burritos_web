@@ -215,6 +215,22 @@ class Database:
         except Exception as e:
             logging.error(f"Error al obtener pedidos del día: {e}")
             return []
+    def pedidoDestalles_por_Idpedido(self, id_pedido ,limite=50):
+        """Obtiene hasta 50 pedidos del día"""
+        query = """
+            SELECT d.id_detalle, d.id_pedido, p.nombre_prod, d.cantidad_detalle, d.subtotal_detalle
+			FROM "DetallePedido" d
+            JOIN "Producto" p ON d.id_producto = p.id_producto
+            WHERE id_pedido = %s
+			LIMIT %s
+        """
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query,(id_pedido ,limite))
+                return cursor.fetchall()
+        except Exception as e:
+            logging.error(f"Error al obtener pedidos del día: {e}")
+            return []
         
     def obtener_corte(self, limite=50):
         """Obtiene hasta 50 pedidos del día"""
@@ -235,4 +251,39 @@ class Database:
         except Exception as e:
             logging.error(f"Error al obtener pedidos del día: {e}")
             return []
+        
+    def registrar_pedido(self, id_usuario, total_pedido):
+        """agregar un nuevo pedido en la base de datos"""
+        query = sql.SQL("""
+            INSERT INTO "Pedido" (id_usuario, total_pedido)
+            VALUES (%s, %s)
+            RETURNING id_pedido
+        """)
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query, (id_usuario, total_pedido))
+                id_pedido = cursor.fetchone()[0]
+                self.connection.commit()
+                return id_pedido
+        except Exception as e:
+            self.connection.rollback()
+            logging.error(f"Error al hacer pedido: {e}")
+            raise
+    
+    def registrar_detalle_pedido(self, id_pedido, id_producto, cantidad_detalle, subtotal_detalle):
+        """agregar un nuevo pedido en la base de datos"""
+        query = sql.SQL("""
+            INSERT INTO "DetallePedido" (id_pedido, id_producto, cantidad_detalle, subtotal_detalle)
+            VALUES (%s, %s, %s, %s)   
+        """)
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query, (id_pedido, id_producto, cantidad_detalle, subtotal_detalle))
+                self.connection.commit()
+        except Exception as e:
+            self.connection.rollback()
+            logging.error(f"Error al hacer pedido: {e}")
+            raise
+
+    
         

@@ -77,21 +77,21 @@ class Menu(ft.Column):
         
         # Elementos para Chicharrón Rojo
         self.txtRojo = ft.Text(value="Chicharron rojo", size=20, color="#9b3b3b")
-        self.fieldRojo = ft.TextField(width=44, height=70, bgcolor=ft.Colors.WHITE, color=ft.Colors.BLACK, read_only=True)
+        self.fieldRojo = ft.TextField(width=44, height=70, bgcolor=ft.Colors.WHITE, color=ft.Colors.BLACK, read_only=True, value=0)
         self.btnRojoMas = ft.IconButton(icon=ft.Icons.ADD, bgcolor=self.colorSubtitulo, on_click=self.add_rojo, icon_color=ft.Colors.BLACK)
         self.btnRojoMenos = ft.IconButton(icon=ft.Icons.REMOVE, bgcolor=self.colorSubtitulo, on_click=self.remove_rojo, icon_color=ft.Colors.BLACK)
         self.existencia("1","Chicharron rojo",self.txtRojo,self.btnRojoMas,self.btnRojoMenos)
         
         # Elementos para Chicharrón Verde
         self.txtVerde = ft.Text(value="Chicharrón verde", size=20, color="#6d9b3b")
-        self.fieldVerde = ft.TextField(width=44, height=70, bgcolor=ft.Colors.WHITE, color=ft.Colors.BLACK, read_only=True)
+        self.fieldVerde = ft.TextField(width=44, height=70, bgcolor=ft.Colors.WHITE, color=ft.Colors.BLACK, read_only=True, value=0)
         self.btnVerdeMas = ft.IconButton(icon=ft.Icons.ADD, bgcolor=self.colorSubtitulo, on_click=self.add_verde, icon_color=ft.Colors.BLACK)
         self.btnVerdeMenos = ft.IconButton(icon=ft.Icons.REMOVE, bgcolor=self.colorSubtitulo, on_click=self.remove_verde, icon_color=ft.Colors.BLACK)
         self.existencia("2","Chicharron verde",self.txtVerde,self.btnVerdeMas,self.btnVerdeMenos)
 
         # Elementos para otro sabor
         self.txtOtro = ft.Text(value=self.verificarDia(), size=20, color="#3b519b")
-        self.fieldOtro = ft.TextField(width=44, height=70, bgcolor=ft.Colors.WHITE, color=ft.Colors.BLACK, read_only=True)
+        self.fieldOtro = ft.TextField(width=44, height=70, bgcolor=ft.Colors.WHITE, color=ft.Colors.BLACK, read_only=True, value=0)
         self.btnOtroMas = ft.IconButton(icon=ft.Icons.ADD, bgcolor=self.colorSubtitulo, on_click=self.add_otro, icon_color=ft.Colors.BLACK)
         self.btnOtroMenos = ft.IconButton(icon=ft.Icons.REMOVE, bgcolor=self.colorSubtitulo, on_click=self.remove_otro, icon_color=ft.Colors.BLACK)
         self.existencia(str(self.ids_productos[self.verificarCodigo()]),self.verificarDia(),self.txtOtro,self.btnOtroMas,self.btnOtroMenos)
@@ -360,12 +360,20 @@ class Menu(ft.Column):
         else:
             return 'carnitas'
         
-        
+    def precioPorBurroEspecial(self):
+        nombre_dia = self.fecha_actual.strftime("%A")
+        if(nombre_dia == "Monday" or nombre_dia == "Friday"):
+            return 20
+        else:
+            return 15
              
 
     def click_enviar(self, e):
-
-        self.whatsapp.enviarMensaje()
+        self.id_pedido = self.db.registrar_pedido(self.idUsuario, self.fieldTotal.value)
+        self.db.registrar_detalle_pedido(self.id_pedido, 1, int(self.fieldRojo.value), int(self.fieldRojo.value)*15)
+        self.db.registrar_detalle_pedido(self.id_pedido, 2, int(self.fieldVerde.value), int(self.fieldVerde.value)*15)
+        self.db.registrar_detalle_pedido(self.id_pedido, self.ids_productos[self.verificarCodigo()], int(self.fieldOtro.value), int(self.fieldRojo.value)*self.precioPorBurroEspecial())
+        #self.whatsapp.enviarMensaje()
         snackBar = ft.SnackBar(ft.Text("Enviado", color=ft.Colors.WHITE),bgcolor=ft.Colors.GREEN)
         self.page.open(snackBar)
         self.page.update()
@@ -373,7 +381,6 @@ class Menu(ft.Column):
     def existencia(self, id, nombreProd, text_widget: ft.Text, btnMas : ft.IconButton, btnMenos : ft.IconButton):
         resultado = self.db.existenciaText_producto(id)
         valorExistencia = resultado[0][0]
-        print(valorExistencia)
         if (valorExistencia == True):
             text_widget.value = nombreProd
         else:
