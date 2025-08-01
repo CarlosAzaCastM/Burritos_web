@@ -283,7 +283,7 @@ class Database:
                 p.nombre_prod,
                 c.venta_total_dia,
                 c.fecha_corte
-            FROM "CorteDiario" c
+            FROM "Corte" c
             JOIN "Producto" p ON c.producto_mas_vendido = p.id_producto
             LIMIT %s;
         """
@@ -328,5 +328,122 @@ class Database:
             logging.error(f"Error al hacer pedido: {e}")
             raise
 
-    
+
+    def obtener_todos_productos(self):
+        """Obtiene todos los productos ordenados por ID"""
+        query = sql.SQL("""
+            SELECT * FROM "Producto"
+            ORDER BY id_producto
+        """)
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query)
+                return cursor.fetchall()
+        except Exception as e:
+            logging.error(f"Error al obtener todos los productos: {e}")
+            return []
+
+    def crear_producto(self, nombre_prod, descripcion_prod, precio_prod, existencia_prod):
+        """Crea un nuevo producto en la base de datos"""
+        query = sql.SQL("""
+            INSERT INTO "Producto" (nombre_prod, descripcion_prod, precio_prod, existencia_prod)
+            VALUES (%s, %s, %s, %s)
+            RETURNING id_producto
+        """)
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query, (nombre_prod, descripcion_prod, precio_prod, existencia_prod))
+                id_producto = cursor.fetchone()[0]
+                self.connection.commit()
+                return id_producto
+        except Exception as e:
+            self.connection.rollback()
+            logging.error(f"Error al crear producto: {e}")
+            return None
+
+    def actualizar_producto(self, id_producto, nombre_prod=None, descripcion_prod=None, 
+                        precio_prod=None, existencia_prod=None):
+        """Actualiza un producto existente"""
+        updates = []
+        params = []
+        
+        if nombre_prod is not None:
+            updates.append(sql.SQL("nombre_prod = %s"))
+            params.append(nombre_prod)
+        if descripcion_prod is not None:
+            updates.append(sql.SQL("descripcion_prod = %s"))
+            params.append(descripcion_prod)
+        if precio_prod is not None:
+            updates.append(sql.SQL("precio_prod = %s"))
+            params.append(float(precio_prod))
+        if existencia_prod is not None:
+            updates.append(sql.SQL("existencia_prod = %s"))
+            params.append(existencia_prod)
+        
+        if not updates:
+            return False  # No hay nada que actualizar
+        
+        params.append(id_producto)
+        
+        query = sql.SQL("""
+            UPDATE "Producto"
+            SET {updates}
+            WHERE id_producto = %s
+        """).format(updates=sql.SQL(', ').join(updates))
+        
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query, params)
+                self.connection.commit()
+                return cursor.rowcount > 0
+        except Exception as e:
+            self.connection.rollback()
+            logging.error(f"Error al actualizar producto: {e}")
+            return False
+        
+    def obtener_producto(self, id_producto):
+        """Obtiene un producto por su ID"""
+        query = sql.SQL("""
+            SELECT id_producto, nombre_prod, descripcion_prod, precio_prod, existencia_prod
+            FROM "Producto"
+            WHERE id_producto = %s
+        """)
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query, (id_producto,))
+                return cursor.fetchone()  # Retorna una tupla con los datos del producto
+        except Exception as e:
+            logging.error(f"Error al obtener producto por ID: {e}")
+            return None
+
+    def eliminar_producto(self, id_producto):
+        """Elimina un producto por su ID"""
+        query = sql.SQL("""
+            DELETE FROM "Producto"
+            WHERE id_producto = %s
+        """)
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query, (id_producto,))
+                self.connection.commit()
+                return cursor.rowcount > 0
+        except Exception as e:
+            self.connection.rollback()
+            logging.error(f"Error al eliminar producto: {e}")
+            return False
+
+    def buscar_productos_por_nombre(self, nombre):
+        """Busca productos por coincidencia en el nombre"""
+        query = sql.SQL("""
+            SELECT * FROM "Producto"
+            WHERE nombre_prod ILIKE %s
+            ORDER BY nombre_prod
+        """)
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query, (f"%{nombre}%",))
+                return cursor.fetchall()
+        except Exception as e:
+            logging.error(f"Error al buscar productos por nombre: {e}")
+            return []
         

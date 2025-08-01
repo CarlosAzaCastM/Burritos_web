@@ -9,6 +9,7 @@ from actulizar import Actulizar
 from corte_pedido_detalles import CortePedidoDetalles
 from stock_burritos import StockBurritos
 from audio import Audio
+from crudBurritos import ProductoCRUD
 
 def main(page: ft.Page):
     # Configuración de la página para web
@@ -64,6 +65,7 @@ def main(page: ft.Page):
             on_detalles=lambda e: show_corte_pedido_detalles(usuario_data, "Detalles", db=db),
             on_stock=lambda e: show_stock(usuario_data,db=db),
             on_audio=lambda e: show_Audio(usuario_data=usuario_data,preInicio=False),
+            on_burritos=lambda e: show_crud_burritos(usuario_data),
             matricula_usu=usuario_data['matricula_usu']
         ))
         page.update() 
@@ -110,6 +112,15 @@ def main(page: ft.Page):
         main_container.controls.append(CortePedidoDetalles(  
             on_go_home=lambda e: show_menu_elecciones(usuario_data),
             titulo = pantalla,
+            db=db
+        ))
+        page.update()
+
+    def show_crud_burritos(usuario_data):
+        main_container.controls.clear()
+        main_container.controls.append(ProductoCRUD(  
+            datos_usuario= usuario_data,
+            on_go_home=lambda e: show_menu_elecciones(usuario_data),
             db=db
         ))
         page.update()
