@@ -8,6 +8,7 @@ from menu_elecciones import MenuElecciones
 from actulizar import Actulizar
 from corte_pedido_detalles import CortePedidoDetalles
 from stock_burritos import StockBurritos
+from audio import Audio
 
 def main(page: ft.Page):
     # Configuración de la página para web
@@ -25,7 +26,7 @@ def main(page: ft.Page):
         host="d1rj3615pdvs73e5oi10-a.oregon-postgres.render.com"
     )
     
-    # Contenedor principal que cambiará entre vistas
+    # Contenedor principal que cambiará entre vistas  
     main_container = ft.Column(expand=True)
     page.add(main_container)  
     
@@ -35,6 +36,7 @@ def main(page: ft.Page):
         main_container.controls.append(InicioSesion(
             on_login_success=lambda e, data: show_menu_elecciones(data),
             on_go_to_register=lambda e: show_register(),
+            on_audio=lambda e: show_Audio(preInicio=True),
             db=db
         ))
         page.update()
@@ -45,6 +47,7 @@ def main(page: ft.Page):
         main_container.controls.append(Registro(
             on_register_success=lambda e: show_login(),
             on_go_to_login=lambda e: show_login(),
+            on_audio=lambda e: show_Audio(preInicio=True),
             db=db
         ))
         page.update()
@@ -60,9 +63,19 @@ def main(page: ft.Page):
             on_pedido=lambda e: show_corte_pedido_detalles(usuario_data, "Pedido", db=db),
             on_detalles=lambda e: show_corte_pedido_detalles(usuario_data, "Detalles", db=db),
             on_stock=lambda e: show_stock(usuario_data,db=db),
+            on_audio=lambda e: show_Audio(usuario_data=usuario_data,preInicio=False),
             matricula_usu=usuario_data['matricula_usu']
         ))
         page.update() 
+
+    def show_Audio(usuario_data = None, preInicio=True):
+        main_container.controls.clear()
+        main_container.controls.append(Audio(
+            on_go_home=lambda e: show_menu_elecciones(usuario_data),
+            on_go_sesion=lambda e: show_login(),
+            preInicio=preInicio
+        ))
+        page.update()
 
     def show_menu(usuario_data, db):
         """Muestra el menú principal de burritos"""
@@ -75,7 +88,9 @@ def main(page: ft.Page):
             aula_ingles=usuario_data['aulaIngles_usu'],
             salon_ingles=usuario_data['salonIngles_usu'],
             on_go_home=lambda e: show_menu_elecciones(usuario_data),
-            db=db
+            db=db,
+            usuario_data = usuario_data,
+            on_audio=lambda e: show_Audio(usuario_data=usuario_data,preInicio=False)
         ))
         page.update()
 
@@ -85,6 +100,7 @@ def main(page: ft.Page):
         main_container.controls.append(Actulizar(
             datos_usuario=usuario_data,  
             on_go_home=lambda e: show_menu_elecciones(usuario_data),
+            on_audio=lambda e: show_Audio(usuario_data=usuario_data,preInicio=False),
             db=db
         ))
         page.update()

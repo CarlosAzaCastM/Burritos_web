@@ -2,7 +2,7 @@ import flet as ft
 from db import Database
 
 class Actulizar(ft.Column):
-    def __init__(self, datos_usuario, on_go_home, db: Database):
+    def __init__(self, datos_usuario, on_go_home, on_audio,db: Database):
         super().__init__(expand=True) 
         
         # Configuración de colores
@@ -119,8 +119,11 @@ class Actulizar(ft.Column):
         
         )
 
+        self.speakerIcon = ft.IconButton(icon=ft.Icons.VOLUME_UP, icon_color=ft.Colors.BLACK, on_click=on_audio)
+
         # Organización de los controles
         self.controls = [
+            self.speakerIcon,
             ft.Row(
                 controls=[self.txtActulizar, self.btnHome],
                 alignment=ft.MainAxisAlignment.CENTER

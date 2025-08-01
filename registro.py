@@ -3,7 +3,7 @@ import flet as ft
 from db import Database
 
 class Registro(ft.Column):
-    def __init__(self, on_register_success, on_go_to_login, db: Database):
+    def __init__(self, on_register_success, on_go_to_login, on_audio, db: Database):
         super().__init__()
         self.on_register_success = on_register_success
         self.on_go_to_login = on_go_to_login
@@ -165,6 +165,8 @@ class Registro(ft.Column):
         # Mensaje de error
         self.error_message = ft.Text(color=ft.Colors.RED, visible=False)
 
+        self.speakerIcon = ft.IconButton(icon=ft.Icons.VOLUME_UP, icon_color=ft.Colors.BLACK, on_click=on_audio)
+
         def create_centered_row(control):
             return ft.Row(
                 controls=[control],
@@ -175,6 +177,7 @@ class Registro(ft.Column):
         
         # Configuración de controles
         self.controls = [
+            create_centered_row(self.speakerIcon),
             create_centered_row(self.txtTitle),
             create_centered_row(self.fieldNombre),
             create_centered_row(self.fieldMatricula),

@@ -8,7 +8,7 @@ from datetime import datetime
 class Menu(ft.Column):
 
     
-    def __init__(self, id_usuario, nombre, aula, salon, aula_ingles, salon_ingles, on_go_home, db):
+    def __init__(self, id_usuario, nombre, aula, salon, aula_ingles, salon_ingles, on_go_home, db, usuario_data, on_audio):
         super().__init__(expand=True)
 
         self.fecha_actual = datetime.now()
@@ -22,6 +22,7 @@ class Menu(ft.Column):
         self.aula_ingles = aula_ingles
         self.salon_ingles = salon_ingles
         self.db = db
+        self.usuario_data = usuario_data
         #Numero de cuenta donde Angel le van a llegar las transferencias
         self.numeroCuenta = "638180000177661017"
     
@@ -30,7 +31,7 @@ class Menu(ft.Column):
             'verde': 2,
             'carnitas': 3,
             'tinga': 4,
-            'desebrada': 5,
+            'deshebrada': 5,
             'papas_picadillo': 6,
             'pastor': 7
         }
@@ -76,28 +77,28 @@ class Menu(ft.Column):
         self.btnHome = ft.IconButton(icon=ft.Icons.HOME, icon_color=ft.Colors.BLACK, on_click=lambda e:  on_go_home(e))
         
         # Elementos para Chicharrón Rojo
-        self.txtRojo = ft.Text(value="Chicharron rojo", size=20, color="#9b3b3b")
+        self.txtRojo = ft.Text(value="Chicharrón rojo $15", size=20, color="#9b3b3b")
         self.fieldRojo = ft.TextField(width=44, height=70, bgcolor=ft.Colors.WHITE, color=ft.Colors.BLACK, read_only=True, value=0)
         self.btnRojoMas = ft.IconButton(icon=ft.Icons.ADD, bgcolor=self.colorSubtitulo, on_click=self.add_rojo, icon_color=ft.Colors.BLACK)
         self.btnRojoMenos = ft.IconButton(icon=ft.Icons.REMOVE, bgcolor=self.colorSubtitulo, on_click=self.remove_rojo, icon_color=ft.Colors.BLACK)
-        self.existencia("1","Chicharron rojo",self.txtRojo,self.btnRojoMas,self.btnRojoMenos)
+        self.existencia("1","Chicharrón rojo $15",self.txtRojo,self.btnRojoMas,self.btnRojoMenos)
         
         # Elementos para Chicharrón Verde
-        self.txtVerde = ft.Text(value="Chicharrón verde", size=20, color="#6d9b3b")
+        self.txtVerde = ft.Text(value="Chicharrón verde $15", size=20, color="#6d9b3b")
         self.fieldVerde = ft.TextField(width=44, height=70, bgcolor=ft.Colors.WHITE, color=ft.Colors.BLACK, read_only=True, value=0)
         self.btnVerdeMas = ft.IconButton(icon=ft.Icons.ADD, bgcolor=self.colorSubtitulo, on_click=self.add_verde, icon_color=ft.Colors.BLACK)
         self.btnVerdeMenos = ft.IconButton(icon=ft.Icons.REMOVE, bgcolor=self.colorSubtitulo, on_click=self.remove_verde, icon_color=ft.Colors.BLACK)
-        self.existencia("2","Chicharron verde",self.txtVerde,self.btnVerdeMas,self.btnVerdeMenos)
+        self.existencia("2","Chicharrón verde $15",self.txtVerde,self.btnVerdeMas,self.btnVerdeMenos)
 
         # Elementos para otro sabor
         self.txtOtro = ft.Text(value=self.verificarDia(), size=20, color="#3b519b")
         self.fieldOtro = ft.TextField(width=44, height=70, bgcolor=ft.Colors.WHITE, color=ft.Colors.BLACK, read_only=True, value=0)
         self.btnOtroMas = ft.IconButton(icon=ft.Icons.ADD, bgcolor=self.colorSubtitulo, on_click=self.add_otro, icon_color=ft.Colors.BLACK)
         self.btnOtroMenos = ft.IconButton(icon=ft.Icons.REMOVE, bgcolor=self.colorSubtitulo, on_click=self.remove_otro, icon_color=ft.Colors.BLACK)
-        self.existencia(str(self.ids_productos[self.verificarCodigo()]),self.verificarDia(),self.txtOtro,self.btnOtroMas,self.btnOtroMenos)
+        self.existencia(str(self.ids_productos[self.verificarCodigo()]),self.verificarDia()+f" ${self.precioPorBurroEspecial()}",self.txtOtro,self.btnOtroMas,self.btnOtroMenos)
         
         # Elementos tipo de pago
-        self.tipoPagotxt = ft.Text(value="Tipo de pago", size=20, color="#3b519b")
+        self.tipoPagotxt = ft.Text(value="Tipo de pago", size=20, color=self.colorSubtitulo)
 
         # Crear el dropdown
         self.tipoPagoDropdown = ft.Dropdown(
@@ -111,7 +112,7 @@ class Menu(ft.Column):
         )
         self.txtNumeroCuenta = ft.Text(value="Cuenta: "+self.numeroCuenta, color=ft.Colors.BLACK, visible=False)
 
-        self.txtLugar = ft.Text(value="Lugar", size=20, color="#3b519b")
+        self.txtLugar = ft.Text(value="Lugar", size=20, color=self.colorSubtitulo)
         self.lugarDropdown = ft.Dropdown(
             width=200,
             options=[
@@ -131,9 +132,12 @@ class Menu(ft.Column):
         self.fieldTotal = ft.TextField(width=80, height=70, bgcolor=ft.Colors.WHITE, color=ft.Colors.BLACK, read_only=True)
 
         #Boton enviar
-        self.btnEnviar = ft.Button("ENVIAR", bgcolor=self.colorExtra,  color=ft.Colors.BLACK, on_click=self.click_enviar)
+        self.btnEnviar = ft.Button("ENVIAR", bgcolor=self.colorExtra,  color=ft.Colors.BLACK, on_click=self.click_enviar, width=100, height=40)
+
+        self.speakerIcon = ft.IconButton(icon=ft.Icons.VOLUME_UP, icon_color=ft.Colors.BLACK, on_click=on_audio)
         
         self.controls = [
+            self.speakerIcon,
             ft.Row(
                 controls=[
                     self.txtUser,
@@ -205,7 +209,20 @@ class Menu(ft.Column):
         ]
         self.spacing = 20
         self.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-        self.alignment=ft.MainAxisAlignment.CENTER,  
+        self.alignment=ft.MainAxisAlignment.CENTER,
+
+    
+        
+        if self.usuario_data['matricula_usu'] == "240325" or self.usuario_data['matricula_usu'] == "240377": 
+            self.lugarDropdown.visible = False
+            self.tipoPagoDropdown.visible = False
+            self.txtTitle.value = "Registrar venta"
+            self.txtLugar.visible = False
+            self.tipoPagotxt.visible = False
+            self.btnEnviar.text = "Registrar"
+
+            
+        
    
 
     def add_rojo(self, e):
@@ -336,7 +353,7 @@ class Menu(ft.Column):
         elif(nombre_dia == "Tuesday"):
             return "Tinga"
         elif(nombre_dia == "Wednesday"):
-            return "Desebrada"
+            return "Deshebrada"
         elif(nombre_dia == "Thursday"):
             return "Papas con picadillo"
         elif(nombre_dia == "Friday"):
@@ -352,7 +369,7 @@ class Menu(ft.Column):
         elif(nombre_dia == "Tuesday"):
             return 'tinga'
         elif(nombre_dia == "Wednesday"):
-            return 'desebrada'
+            return 'deshebrada'
         elif(nombre_dia == "Thursday"):
             return 'papas_picadillo'
         elif(nombre_dia == "Friday"):
@@ -372,7 +389,7 @@ class Menu(ft.Column):
         self.id_pedido = self.db.registrar_pedido(self.idUsuario, self.fieldTotal.value)
         self.db.registrar_detalle_pedido(self.id_pedido, 1, int(self.fieldRojo.value), int(self.fieldRojo.value)*15)
         self.db.registrar_detalle_pedido(self.id_pedido, 2, int(self.fieldVerde.value), int(self.fieldVerde.value)*15)
-        self.db.registrar_detalle_pedido(self.id_pedido, self.ids_productos[self.verificarCodigo()], int(self.fieldOtro.value), int(self.fieldRojo.value)*self.precioPorBurroEspecial())
+        self.db.registrar_detalle_pedido(self.id_pedido, self.ids_productos[self.verificarCodigo()], int(self.fieldOtro.value), int(self.fieldOtro.value)*self.precioPorBurroEspecial())
         #self.whatsapp.enviarMensaje()
         snackBar = ft.SnackBar(ft.Text("Enviado", color=ft.Colors.WHITE),bgcolor=ft.Colors.GREEN)
         self.page.open(snackBar)

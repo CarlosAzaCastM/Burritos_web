@@ -4,7 +4,7 @@ from db import Database
 
 
 class InicioSesion(ft.Column):
-    def __init__(self, on_login_success, on_go_to_register, db: Database):
+    def __init__(self, on_login_success, on_go_to_register, on_audio,db: Database):
         super().__init__()
         self.db = db
         
@@ -68,9 +68,12 @@ class InicioSesion(ft.Column):
         
         # Mensaje de error
         self.error_message = ft.Text(color=ft.Colors.RED, visible=False)
+
+        self.speakerIcon = ft.IconButton(icon=ft.Icons.VOLUME_UP, icon_color=ft.Colors.BLACK, on_click=on_audio)
         
         # Configuración de controles
         self.controls = [
+            self.speakerIcon,
             self.espacioArriba,
             self.img_control,
             self.txtTitle,
@@ -102,8 +105,8 @@ class InicioSesion(ft.Column):
         
         try:
             if self.db.verificar_credenciales(
-                matricula_usu=self.fieldMatricula.value,
-                contraseña_usu=self.fieldPassword.value
+                matricula_usu=self.fieldMatricula.value.strip(),
+                contraseña_usu=self.fieldPassword.value.strip()
             ): 
                 usuario = self.db.obtener_usuario_completo_por_matricula(self.fieldMatricula.value)
                 snackBar = ft.SnackBar(ft.Text(f"Bienvenido", color=ft.Colors.WHITE),bgcolor=ft.Colors.GREEN)

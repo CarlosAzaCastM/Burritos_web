@@ -175,13 +175,15 @@ class Database:
         """)
         try:
             with self.connection.cursor() as cursor:
-                cursor.execute(query, (id_producto))
-                resultado = cursor.fetchall()
-                return resultado
+                cursor.execute(query, (id_producto,))
+                resultado = cursor.fetchone()  # Cambiado de fetchall() a fetchone()
+                if resultado:
+                    return bool(resultado[0])  # Devuelve el valor booleano del primer campo
+                return False  # Si no hay resultados
         except Exception as e:
             self.connection.rollback()
             logging.error(f"Error al actualizar stock: {e}")
-            return False        
+            return False       
         
     def obtener_pedidos(self, limite=50):
         """Obtiene hasta 50 pedidos del día"""
@@ -199,6 +201,47 @@ class Database:
         except Exception as e:
             logging.error(f"Error al obtener pedidos del día: {e}")
             return []
+    def obtener_pedidos_fecha(self, fecha_pedido, limite1=50, limite2=50):
+        query = """
+            WITH pedidos_por_fecha AS (
+                SELECT p.id_pedido, u.nombre_usu, p.fecha_pedido, p.total_pedido
+                FROM "Pedido" p
+                JOIN "Usuario" u ON p.id_usuario = u.id_usuario
+                WHERE p.fecha_pedido = %s
+                ORDER BY p.id_pedido DESC 
+                LIMIT %s
+            )
+            SELECT * FROM pedidos_por_fecha
+            UNION ALL
+            SELECT p.id_pedido, u.nombre_usu, p.fecha_pedido, p.total_pedido
+            FROM "Pedido" p
+            JOIN "Usuario" u ON p.id_usuario = u.id_usuario
+            WHERE NOT EXISTS (SELECT 1 FROM pedidos_por_fecha)
+            LIMIT %s;
+        """
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query,(fecha_pedido, limite1,limite2))
+                return cursor.fetchall()
+        except Exception as e:
+            logging.error(f"Error al obtener pedidos del día: {e}")
+            return []
+        
+    def obtener_pedido_ultimos_dias(self, ultimosDias):
+        query = """
+            SELECT p.id_pedido, u.nombre_usu, p.fecha_pedido, p.total_pedido
+            FROM "Pedido" p
+            JOIN "Usuario" u ON p.id_usuario = u.id_usuario
+            WHERE p.fecha_pedido >= CURRENT_DATE - (INTERVAL '1 day' * %s)
+            ORDER BY p.fecha_pedido DESC;
+        """
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query, (ultimosDias,))
+                return cursor.fetchall()
+        except Exception as e:
+            logging.error(f"Error al obtener pedidos de los últimos días: {e}")
+            return []
         
     def obtener_pedidoDestales(self, limite=50):
         """Obtiene hasta 50 pedidos del día"""
@@ -215,25 +258,25 @@ class Database:
         except Exception as e:
             logging.error(f"Error al obtener pedidos del día: {e}")
             return []
-    def pedidoDestalles_por_Idpedido(self, id_pedido ,limite=50):
-        """Obtiene hasta 50 pedidos del día"""
+    def pedidoDestalles_por_Idpedido(self, id_pedido, limite=3):
         query = """
-            SELECT d.id_detalle, d.id_pedido, p.nombre_prod, d.cantidad_detalle, d.subtotal_detalle
-			FROM "DetallePedido" d
-            JOIN "Producto" p ON d.id_producto = p.id_producto
-            WHERE id_pedido = %s
-			LIMIT %s
-        """
+            WITH primera_consulta AS (
+                SELECT * FROM "DetallePedido" WHERE id_pedido = %s LIMIT %s
+            )
+            SELECT * FROM primera_consulta
+            UNION ALL
+            SELECT * FROM "DetallePedido" 
+            WHERE NOT EXISTS (SELECT 1 FROM primera_consulta);
+            """
         try:
             with self.connection.cursor() as cursor:
-                cursor.execute(query,(id_pedido ,limite))
+                cursor.execute(query,(id_pedido,limite))
                 return cursor.fetchall()
         except Exception as e:
             logging.error(f"Error al obtener pedidos del día: {e}")
             return []
         
     def obtener_corte(self, limite=50):
-        """Obtiene hasta 50 pedidos del día"""
         query = """
             SELECT 
                 c.id_corte_diario,

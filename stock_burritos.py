@@ -15,7 +15,7 @@ class StockBurritos(ft.Column):
             'verde': 2,
             'carnitas': 3,
             'tinga': 4,
-            'desebrada': 5,
+            'deshebrada': 5,
             'papas_picadillo': 6,
             'pastor': 7
         }
@@ -23,43 +23,67 @@ class StockBurritos(ft.Column):
         # Obtener el sabor del día
         self.sabor_dia = self.verificarDia()
         
-        # Función para crear indicadores de estado con valor inicial (se actualizará al cargar)
-        def crear_indicador_estado():
-            return ft.Container(
-                width=20,
-                height=20,
-                border_radius=10,
-                bgcolor=ft.Colors.RED_400
-            )
-        
-        # Componentes UI con indicadores de estado
-        self.indicador_rojo = crear_indicador_estado()
         self.txtBurritosRojo = ft.Text(value="Chicharrón Rojo", size=20, color="#000000")
         self.checkBoxBurritosRojo = ft.Checkbox(
             width=30, 
             height=30,
-            value=False,  # Valor inicial, se actualizará al cargar
+            value=bool(self.db.existenciaText_producto(1)),  
             on_change=lambda e: self.actualizar_stock('rojo', e.control.value)
         )
         
-        self.indicador_verde = crear_indicador_estado()
+        
         self.txtBurritosVerde = ft.Text(value="Chicharrón Verde", size=20, color="#000000")
         self.checkBoxBurritosVerde = ft.Checkbox(
             width=30, 
             height=30,
-            value=False,  # Valor inicial, se actualizará al cargar
+            value=bool(self.db.existenciaText_producto(2)),  
             on_change=lambda e: self.actualizar_stock('verde', e.control.value)
         )
         
-        # Texto dinámico para el sabor del día
-        self.indicador_sabor_dia = crear_indicador_estado()
-        self.txtSaborDia = ft.Text(value=self.sabor_dia, size=20, color="#000000")
-        self.checkBoxSaborDia = ft.Checkbox(
+
+        self.txtBurritosCarnitas = ft.Text(value="Carnitas", size=20, color="#000000")
+        self.checkBoxBurritosCarnitas= ft.Checkbox(
             width=30, 
             height=30,
-            value=False,  # Valor inicial, se actualizará al cargar
-            on_change=lambda e: self.actualizar_stock(self.obtener_clave_sabor(), e.control.value)
+            value=bool(self.db.existenciaText_producto(3)),
+            on_change=lambda e: self.actualizar_stock('carnitas', e.control.value)
         )
+        
+
+        self.txtBurritosTinga = ft.Text(value="Tinga", size=20, color="#000000")
+        self.checkBoxBurritosTinga = ft.Checkbox(
+            width=30, 
+            height=30,
+            value=bool(self.db.existenciaText_producto(4)),  
+            on_change=lambda e: self.actualizar_stock('tinga', e.control.value)
+        )
+        
+        
+        self.txtBurritosDeshebrada = ft.Text(value="Deshebrada", size=20, color="#000000")
+        self.checkBoxBurritosDeshebrada = ft.Checkbox(
+            width=30, 
+            height=30,
+            value=bool(self.db.existenciaText_producto(5)),  
+            on_change=lambda e: self.actualizar_stock('deshebrada', e.control.value)
+        )
+        
+
+        self.txtBurritosPapas = ft.Text(value="Papas con picadillo", size=20, color="#000000")
+        self.checkBoxBurritosPapas= ft.Checkbox(
+            width=30, 
+            height=30,
+            value=bool(self.db.existenciaText_producto(6)), 
+            on_change=lambda e: self.actualizar_stock('papas_picadillo', e.control.value)
+        )
+        
+        self.txtBurritosPastor = ft.Text(value="Pastor", size=20, color="#000000")
+        self.checkBoxBurritosPastor= ft.Checkbox(
+            width=30, 
+            height=30,
+            value=bool(self.db.existenciaText_producto(7)), 
+            on_change=lambda e: self.actualizar_stock('pastor', e.control.value)
+        )
+        
 
         self.btnVolver = ft.ElevatedButton(
             text="Volver al menú",
@@ -71,7 +95,6 @@ class StockBurritos(ft.Column):
         self.controls = [
             ft.Row(
                 controls=[
-                    self.indicador_rojo,
                     self.txtBurritosRojo, 
                     self.checkBoxBurritosRojo
                 ], 
@@ -80,7 +103,6 @@ class StockBurritos(ft.Column):
             ),
             ft.Row(
                 controls=[
-                    self.indicador_verde,
                     self.txtBurritosVerde, 
                     self.checkBoxBurritosVerde
                 ], 
@@ -89,9 +111,40 @@ class StockBurritos(ft.Column):
             ),
             ft.Row(
                 controls=[
-                    self.indicador_sabor_dia,
-                    self.txtSaborDia, 
-                    self.checkBoxSaborDia
+                    self.txtBurritosCarnitas, 
+                    self.checkBoxBurritosCarnitas
+                ], 
+                alignment=ft.MainAxisAlignment.CENTER,
+                spacing=10
+            ),
+            ft.Row(
+                controls=[
+                    self.txtBurritosTinga, 
+                    self.checkBoxBurritosTinga
+                ], 
+                alignment=ft.MainAxisAlignment.CENTER,
+                spacing=10
+            ),
+            ft.Row(
+                controls=[
+                    self.txtBurritosDeshebrada, 
+                    self.checkBoxBurritosDeshebrada
+                ], 
+                alignment=ft.MainAxisAlignment.CENTER,
+                spacing=10
+            ),
+            ft.Row(
+                controls=[
+                    self.txtBurritosPapas, 
+                    self.checkBoxBurritosPapas
+                ], 
+                alignment=ft.MainAxisAlignment.CENTER,
+                spacing=10
+            ),
+            ft.Row(
+                controls=[
+                    self.txtBurritosPastor, 
+                    self.checkBoxBurritosPastor
                 ], 
                 alignment=ft.MainAxisAlignment.CENTER,
                 spacing=10
@@ -99,75 +152,11 @@ class StockBurritos(ft.Column):
             ft.Row(controls=[self.btnVolver], alignment=ft.MainAxisAlignment.CENTER)
         ]
         
+        
         self.spacing = 20
         self.horizontal_alignment = ft.CrossAxisAlignment.CENTER
         self.alignment = ft.MainAxisAlignment.CENTER
         
-        # Carga diferida hasta que esté en la página
-        self.on_add = lambda _: self.cargar_stock_actual()
-
-    def actualizar_indicadores(self):
-        """Actualiza los indicadores visuales según el estado de los checkboxes"""
-        self.indicador_rojo.bgcolor = ft.Colors.GREEN_400 if self.checkBoxBurritosRojo.value else ft.Colors.RED_400
-        self.indicador_verde.bgcolor = ft.Colors.GREEN_400 if self.checkBoxBurritosVerde.value else ft.Colors.RED_400
-        self.indicador_sabor_dia.bgcolor = ft.Colors.GREEN_400 if self.checkBoxSaborDia.value else ft.Colors.RED_400
-        self.update()
-
-    def cargar_stock_actual(self):
-        """Carga el estado actual del stock desde la base de datos"""
-        try:
-            # Obtener clave del sabor del día
-            clave_sabor = self.obtener_clave_sabor()
-            
-            # Obtener IDs de productos a consultar (los 2 fijos + el del día)
-            ids_a_consultar = [
-                self.ids_productos['rojo'],
-                self.ids_productos['verde'],
-                self.ids_productos[clave_sabor]
-            ]
-            
-            # Obtener datos de la base de datos
-            stock_data = self.db.obtener_stock_productos(ids_a_consultar)
-            
-            if stock_data:
-                # Asignar valores a los checkboxes desde la base de datos
-                def convertir_a_bool(valor):
-                    return str(valor).lower() in ("1", "true", "t", "yes")
-                
-                rojo_id = self.ids_productos['rojo']
-                verde_id = self.ids_productos['verde']
-                sabor_id = self.ids_productos[clave_sabor]
-
-                print("Stock desde base de datos:", stock_data)
-
-                self.checkBoxBurritosRojo.value = convertir_a_bool(stock_data.get(rojo_id, 0))
-                self.checkBoxBurritosVerde.value = convertir_a_bool(stock_data.get(verde_id, 0))
-                self.checkBoxSaborDia.value = convertir_a_bool(stock_data.get(sabor_id, 0))
-
-                
-                # Actualizar texto del sabor del día
-                self.txtSaborDia.value = self.sabor_dia
-                
-                # Actualizar indicadores visuales según los valores de los checkboxes
-                self.actualizar_indicadores()
-                
-                if self.page is not None:
-                    self.page.snack_bar = ft.SnackBar(
-                        ft.Text("Datos cargados correctamente desde la base de datos"),
-                        bgcolor=ft.Colors.GREEN_400
-                    )
-                    self.page.snack_bar.open = True
-                    self.page.update()
-
-        except Exception as e:
-            print(f"Error al cargar stock: {e}")
-            if self.page is not None:
-                self.page.snack_bar = ft.SnackBar(
-                    ft.Text(f"Error al cargar datos: {str(e)}"),
-                    bgcolor=ft.Colors.RED_400
-                )
-                self.page.snack_bar.open = True
-                self.page.update()
 
     def actualizar_stock(self, tipo_burrito, disponible):
         """Actualiza el stock en la base de datos"""
@@ -175,13 +164,12 @@ class StockBurritos(ft.Column):
             id_producto = self.ids_productos[tipo_burrito]
             success = self.db.actualizar_stock_producto(id_producto, disponible)
             if success:
-                self.actualizar_indicadores()
                 if self.page is not None:
-                    self.page.snack_bar = ft.SnackBar(
+                    self.snack_bar1 = ft.SnackBar(
                         ft.Text("Estado actualizado correctamente en la base de datos"),
                         bgcolor=ft.Colors.GREEN_400
                     )
-                    self.page.snack_bar.open = True
+                    self.page.open(self.snack_bar1)
                     self.page.update()
             else:
                 print(f"No se pudo actualizar el stock para {tipo_burrito}")
@@ -197,7 +185,7 @@ class StockBurritos(ft.Column):
         elif nombre_dia == "Tuesday":
             return "tinga"
         elif nombre_dia == "Wednesday":
-            return "desebrada"
+            return "deshebrada"
         elif nombre_dia == "Thursday":
             return "papas_picadillo"
         elif nombre_dia == "Friday":
@@ -213,7 +201,7 @@ class StockBurritos(ft.Column):
         elif nombre_dia == "Tuesday":
             return "Tinga"
         elif nombre_dia == "Wednesday":
-            return "Desebrada"
+            return "Deshebrada"
         elif nombre_dia == "Thursday":
             return "Papas con picadillo"
         elif nombre_dia == "Friday":

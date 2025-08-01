@@ -1,7 +1,7 @@
 import flet as ft
 
 class MenuElecciones(ft.Column):
-    def __init__(self, on_pedir_burritos, on_actulizar, on_go_login, on_corte, on_pedido, on_detalles, on_stock,matricula_usu):
+    def __init__(self, on_pedir_burritos, on_actulizar, on_go_login, on_corte, on_pedido, on_detalles, on_audio,on_stock,matricula_usu):
         super().__init__()
         
         self.colorFondo = "#f6efe7"
@@ -65,9 +65,9 @@ class MenuElecciones(ft.Column):
         )
         
         self.btnDetallePedido = ft.ElevatedButton(
-            "Detalles Pedido", 
+            "Detalles", 
             width=70, 
-            height=50, 
+            height=30, 
             bgcolor=self.colorSubtitulo, 
             color=ft.Colors.BLACK,
             on_click=on_detalles
@@ -82,16 +82,19 @@ class MenuElecciones(ft.Column):
             on_click=on_stock
         )
 
-        
+        self.speakerIcon = ft.IconButton(icon=ft.Icons.VOLUME_UP, icon_color=ft.Colors.BLACK, on_click=on_audio)
+
         base_controls = [
-            self.espacioArriba,
+            self.speakerIcon,
             self.btnLogout,
             self.img_control,          
             self.btnPedirBurritos,
             self.btnActulizar
         ]
         
-        if self.matricula_usu == "240325" or self.matricula_usu == "230193":  
+        if self.matricula_usu == "240325" or self.matricula_usu == "240377": 
+            self.btnActulizar.visible = False
+            self.btnPedirBurritos.text = "Registrar Pedido"
             admin_buttons = ft.Row(
                 controls=[
                     self.btnCorte,
