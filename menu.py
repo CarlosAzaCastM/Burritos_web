@@ -396,9 +396,8 @@ class Menu(ft.Column):
         self.page.update()
 
     def existencia(self, id, nombreProd, text_widget: ft.Text, btnMas : ft.IconButton, btnMenos : ft.IconButton):
-        resultado = self.db.existenciaText_producto(id)
-        valorExistencia = resultado[0][0]
-        if (valorExistencia == True):
+        resultado = bool(self.db.existenciaText_producto(id))
+        if (resultado == True):
             text_widget.value = nombreProd
         else:
             text_widget.color = ft.Colors.GREY
