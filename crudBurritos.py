@@ -8,7 +8,8 @@ class ProductoCRUD(ft.Column):
         self.datos_usu = datos_usuario
         self.db = db
         self.on_go_home = on_go_home
-        
+        self.db.connect()
+
         # Paleta de colores
         self.colorFondo = "#f6efe7"
         self.colorTitulo = "#8b5e3c"
@@ -281,4 +282,9 @@ class ProductoCRUD(ft.Column):
     
     def did_mount(self):
         """Se ejecuta cuando el control se añade a la página"""
+        self.db.connect()
         self.cargar_productos()
+    
+    def will_unmount(self):
+        """Se llama cuando la vista va a ser eliminada"""
+        self.db.close()

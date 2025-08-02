@@ -23,6 +23,7 @@ class Menu(ft.Column):
         self.salon_ingles = salon_ingles
         self.db = db
         self.usuario_data = usuario_data
+        self.db.connect()
         #Numero de cuenta donde Angel le van a llegar las transferencias
         self.numeroCuenta = "638180000177661017"
     
@@ -386,6 +387,7 @@ class Menu(ft.Column):
              
 
     def click_enviar(self, e):
+        self.db.connect()
         self.id_pedido = self.db.registrar_pedido(self.idUsuario, self.fieldTotal.value)
         self.db.registrar_detalle_pedido(self.id_pedido, 1, int(self.fieldRojo.value), int(self.fieldRojo.value)*15)
         self.db.registrar_detalle_pedido(self.id_pedido, 2, int(self.fieldVerde.value), int(self.fieldVerde.value)*15)
@@ -406,3 +408,7 @@ class Menu(ft.Column):
             btnMas.disabled = True
             btnMenos.disabled = True
             btnMenos.bgcolor = ft.Colors.GREY
+
+    def will_unmount(self):
+        """Se llama cuando la vista va a ser eliminada"""
+        self.db.close()

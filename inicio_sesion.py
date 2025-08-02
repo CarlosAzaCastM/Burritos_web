@@ -15,6 +15,8 @@ class InicioSesion(ft.Column):
         self.colorExtra = "#a1b58c"
         self.verdeHoja = "#A1B58C"
 
+        
+
         self.on_login_success = on_login_success
         self.on_go_to_register = on_go_to_register
 
@@ -96,6 +98,7 @@ class InicioSesion(ft.Column):
     
     def login(self, e):
         """Lógica de inicio de sesión con validación en base de datos"""
+        self.db.connect()
         if not self.fieldMatricula.value or not self.fieldPassword.value:
             self.error_message.value = "Todos los campos son obligatorios"
             self.error_message.visible = True
@@ -130,4 +133,8 @@ class InicioSesion(ft.Column):
             self.error_message.visible = True
             if hasattr(self, 'page'):
                 self.update()
+
+    def will_unmount(self):
+        """Se llama cuando la vista va a ser eliminada"""
+        self.db.close()
             

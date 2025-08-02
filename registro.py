@@ -27,7 +27,7 @@ class Registro(ft.Column):
         # Campos del formulario
         self.fieldNombre = ft.TextField(
             label="Primer Nombre",
-            width=400,
+            width=300,
             color=ft.Colors.BLACK,
             bgcolor=self.verdeHoja,
             border_radius=40,
@@ -39,7 +39,7 @@ class Registro(ft.Column):
         
         self.fieldMatricula = ft.TextField(
             label="Matrícula",
-            width=400,
+            width=300,
             color=ft.Colors.BLACK,
             bgcolor=self.verdeHoja,
             border_radius=40,
@@ -52,7 +52,7 @@ class Registro(ft.Column):
         
         self.fieldPassword = ft.TextField(
             label="Contraseña",
-            width=400,
+            width=300,
             password=True,
             can_reveal_password=True,
             color=ft.Colors.BLACK,
@@ -67,7 +67,7 @@ class Registro(ft.Column):
         
         self.fieldConfirmPassword = ft.TextField(
             label="Confirmar contraseña",
-            width=400,
+            width=300,
             password=True,
             can_reveal_password=True,
             color=ft.Colors.BLACK,
@@ -82,7 +82,7 @@ class Registro(ft.Column):
 
         self.fieldAula = ft.Dropdown(
             label="Aula",
-            width=400,
+            width=300,
             label_style=ft.TextStyle(
                 color=ft.Colors.BLACK,  
                 size=14
@@ -104,7 +104,7 @@ class Registro(ft.Column):
         
         self.fieldSalon = ft.TextField(
             label="Salón",
-            width=400,
+            width=300,
             color=ft.Colors.BLACK,
             bgcolor=self.verdeHoja,
             border_radius=40,
@@ -116,7 +116,7 @@ class Registro(ft.Column):
         
         self.fieldAulaIngles = ft.Dropdown(
             label="Aula de Inglés",
-            width=400,
+            width=300,
             label_style=ft.TextStyle(
                 color=ft.Colors.BLACK,  
                 size=14
@@ -138,7 +138,7 @@ class Registro(ft.Column):
         
         self.fieldSalonIngles = ft.TextField(
             label="Salón de Inglés",
-            width=400,
+            width=300,
             color=ft.Colors.BLACK,
             bgcolor=self.verdeHoja,
             border_radius=40,
@@ -154,7 +154,7 @@ class Registro(ft.Column):
             on_click=self.register,
             bgcolor=self.colorSubtitulo,
             color=ft.Colors.WHITE,
-            width=400,
+            width=300,
         )
         
         self.btnLogin = ft.TextButton(
@@ -195,6 +195,7 @@ class Registro(ft.Column):
 
     def register(self, e):
         """Lógica de registro con base de datos"""
+        self.db.connect()
         # Validar campos
         if (not self.fieldNombre.value or not self.fieldMatricula.value or 
             not self.fieldPassword.value or not self.fieldConfirmPassword.value or
@@ -243,3 +244,7 @@ class Registro(ft.Column):
     def go_to_login(self, e):
         """Navega al formulario de inicio de sesión"""
         self.on_go_to_login(e)
+
+    def will_unmount(self):
+        """Se llama cuando la vista va a ser eliminada"""
+        self.db.close()

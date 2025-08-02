@@ -66,7 +66,8 @@ def main(page: ft.Page):
             on_stock=lambda e: show_stock(usuario_data,db=db),
             on_audio=lambda e: show_Audio(usuario_data=usuario_data,preInicio=False),
             on_burritos=lambda e: show_crud_burritos(usuario_data),
-            matricula_usu=usuario_data['matricula_usu']
+            matricula_usu=usuario_data['matricula_usu'],
+            db=db
         ))
         page.update() 
 

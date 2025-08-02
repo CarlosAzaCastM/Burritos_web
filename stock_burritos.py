@@ -8,6 +8,7 @@ class StockBurritos(ft.Column):
         self.db = db
         self.on_go_home = on_go_home
         self.fecha_actual = datetime.now()
+        self.db.connect()
 
         # IDs de producto
         self.ids_productos = {
@@ -160,6 +161,7 @@ class StockBurritos(ft.Column):
 
     def actualizar_stock(self, tipo_burrito, disponible):
         """Actualiza el stock en la base de datos"""
+        self.db.connect()
         try:
             id_producto = self.ids_productos[tipo_burrito]
             success = self.db.actualizar_stock_producto(id_producto, disponible)
@@ -208,3 +210,7 @@ class StockBurritos(ft.Column):
             return "Pastor"
         else:
             return "Sabor del día"
+    
+    def will_unmount(self):
+        """Se llama cuando la vista va a ser eliminada"""
+        self.db.close()

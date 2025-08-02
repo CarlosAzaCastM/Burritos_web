@@ -226,6 +226,32 @@ class Database:
         except Exception as e:
             logging.error(f"Error al obtener pedidos del día: {e}")
             return []
+    
+    def obtener_corte_fecha(self, fecha_pedido, limite1=50, limite2=50):
+        query = """
+            WITH corte_por_fecha AS (
+                SELECT c.id_corte_diario, p.nombre_prod, c.venta_total_dia, c.fecha_corte 
+                FROM "Corte" c
+                JOIN "Producto" p ON c.producto_mas_vendido = p.id_producto
+                WHERE c.fecha_corte = %s
+                ORDER BY c.id_corte_diario DESC 
+                LIMIT %s
+            )
+            SELECT * FROM corte_por_fecha
+            UNION ALL
+            SELECT c.id_corte_diario, p.nombre_prod, c.venta_total_dia, c.fecha_corte 
+            FROM "Corte" c
+            JOIN "Producto" p ON c.producto_mas_vendido = p.id_producto
+            WHERE NOT EXISTS (SELECT 1 FROM corte_por_fecha)
+            LIMIT %s;
+        """
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query,(fecha_pedido, limite1,limite2))
+                return cursor.fetchall()
+        except Exception as e:
+            logging.error(f"Error al obtener pedidos del día: {e}")
+            return []
         
     def obtener_pedido_ultimos_dias(self, ultimosDias):
         query = """
@@ -234,6 +260,22 @@ class Database:
             JOIN "Usuario" u ON p.id_usuario = u.id_usuario
             WHERE p.fecha_pedido >= CURRENT_DATE - (INTERVAL '1 day' * %s)
             ORDER BY p.fecha_pedido DESC;
+        """
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query, (ultimosDias,))
+                return cursor.fetchall()
+        except Exception as e:
+            logging.error(f"Error al obtener pedidos de los últimos días: {e}")
+            return []
+        
+    def obtener_corte_ultimos_dias(self, ultimosDias):
+        query = """
+            SELECT p.nombre_prod, c.venta_total_dia, c.fecha_corte
+            FROM "Corte" c
+            JOIN "Producto" p ON c.producto_mas_vendido = p.id_producto
+            WHERE c.fecha_corte >= CURRENT_DATE - (INTERVAL '1 day' * %s)
+            ORDER BY c.fecha_corte DESC;
         """
         try:
             with self.connection.cursor() as cursor:
@@ -447,3 +489,54 @@ class Database:
             logging.error(f"Error al buscar productos por nombre: {e}")
             return []
         
+    def venta_diaria_total(self, fecha_hoy):
+        """Hace la suma de las ventas"""
+        query = sql.SQL("""
+            SELECT SUM(total_pedido) FROM "Pedido"
+            WHERE fecha_pedido = %s
+        """)
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query, (fecha_hoy,))  # Coma añadida aquí
+                result = cursor.fetchone()
+                return result[0] if result else 0  # Devuelve el valor o 0 si es None
+        except Exception as e:
+            logging.error(f"Error al calcular venta diaria: {e}")
+            self.connection.rollback()
+            return 0
+        
+    def obtener_producto_mas_vendido_por_fecha(self, fecha):
+        """Obtiene el ID del producto más vendido en una fecha específica"""
+        query = sql.SQL("""
+            SELECT d.id_producto
+            FROM "DetallePedido" d
+            WHERE d.subtotal_detalle > 0
+            AND d.fecha_detalle = %s
+            GROUP BY d.id_producto
+            ORDER BY SUM(d.cantidad_detalle) DESC
+            LIMIT 1
+        """)
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query, (fecha,))
+                result = cursor.fetchone()
+                return result[0] if result else None
+        except Exception as e:
+            logging.error(f"Error al obtener producto más vendido por fecha: {e}")
+            return None
+    
+    def registrar_corte_diario(self, producto_mas_vendido: int, venta_total_dia: float, fecha_corte: str):
+        query = sql.SQL("""
+            INSERT INTO "Corte" (producto_mas_vendido, venta_total_dia, fecha_corte)
+            VALUES (%s, %s, %s)
+        """)
+        
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query, (producto_mas_vendido, venta_total_dia, fecha_corte))
+                self.connection.commit()
+                return True
+        except Exception as e:
+            self.connection.rollback()
+            logging.error(f"Error al registrar corte diario: {e}")
+            return False
