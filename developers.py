@@ -20,8 +20,8 @@ class Developers(ft.Column):
 
         self.__img_equipo = ft.Image(
         src=self.drive_url,
-        width=200,  
-        height=100,  
+        width=400,  
+        height=300,  
         fit=ft.ImageFit.CONTAIN, 
         repeat=ft.ImageRepeat.NO_REPEAT,
         border_radius=ft.border_radius.all(10),
@@ -31,6 +31,7 @@ class Developers(ft.Column):
 
         self.controls=[
             self.__btnHome,
+            ft.Text(value="DESAROLLADORES DEL PROYECTO", size=20, color=self.colorTitulo),
             self.__img_equipo,
             ft.Text(value="240508 - Adolfo Yair Salas Hernandez", size=12, color=self.colorSubtitulo),
             ft.Text(value="240325 - Carlos Azael Castañeda Muñoz", size=12, color=self.colorSubtitulo),

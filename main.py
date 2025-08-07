@@ -10,6 +10,7 @@ from corte_pedido_detalles import CortePedidoDetalles
 from stock_burritos import StockBurritos
 from audio import Audio
 from crudBurritos import ProductoCRUD
+from developers import Developers
 
 def main(page: ft.Page):
     # Configuración de la página para web
@@ -37,7 +38,7 @@ def main(page: ft.Page):
         main_container.controls.append(InicioSesion(
             on_login_success=lambda e, data: show_menu_elecciones(data),
             on_go_to_register=lambda e: show_register(),
-            on_audio=lambda e: show_Audio(preInicio=True),
+            on_developer=lambda e: show_developers(),
             db=db
         ))
         page.update()
@@ -77,6 +78,13 @@ def main(page: ft.Page):
             on_go_home=lambda e: show_menu_elecciones(usuario_data),
             on_go_sesion=lambda e: show_login(),
             preInicio=preInicio
+        ))
+        page.update()
+    
+    def show_developers():
+        main_container.controls.clear()
+        main_container.controls.append(Developers(
+            on_go_home=lambda e: show_login()
         ))
         page.update()
 

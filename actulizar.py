@@ -173,6 +173,7 @@ class Actulizar(ft.Column):
     def boton_guardar(self, e):
         try:
             # Actualizar la base de datos
+            self.db.connect()
             updated = self.db.actualizar_usuario(
                 aula_usu=self.dropdownAula.value,
                 salon_usu=self.fieldSalon.value,
@@ -187,6 +188,7 @@ class Actulizar(ft.Column):
             
             if updated:
                 
+                self.db.connect()
                 # Actualizar los datos locales (usuario_data)
                 self.datos_usu.update({
                     'aula_usu': self.dropdownAula.value,
@@ -204,13 +206,15 @@ class Actulizar(ft.Column):
                 )
                 self.page.snack_bar.open = True
         except Exception as e:
-            self.page.snack_bar = ft.SnackBar(
+            snack_bar = ft.SnackBar(
                 content=ft.Text(f"Error al actualizar: {str(e)}", color=ft.Colors.WHITE),
                 bgcolor=ft.Colors.RED,
             )
-            self.page.snack_bar.open = True
+            self.page.open(snack_bar)
+            self.page.update()
         finally:
             self.page.update()
+            self.db.close()
 
     
 

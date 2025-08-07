@@ -15,6 +15,8 @@ class Menu(ft.Column):
 
         self.whatsapp = WhatsTest()
 
+        self.mensajeWhats = True
+
         self.idUsuario = id_usuario
         self.nombre = nombre
         self.aula = aula
@@ -49,6 +51,7 @@ class Menu(ft.Column):
         self.burritosOtroCantidad = 0
 
         self.tipoPago = "Ninguno"
+        self.lugarMessage = None
 
         #Paleta de colores
         self.colorFondo = "#f6efe7"
@@ -117,9 +120,9 @@ class Menu(ft.Column):
         self.lugarDropdown = ft.Dropdown(
             width=200,
             options=[
-                ft.dropdown.Option("Mi aula"),
+                ft.dropdown.Option("En mi aula"),
                 ft.dropdown.Option("En ingles"),
-                ft.dropdown.Option("Cafeteria"),
+                ft.dropdown.Option("Cafetería"),
                 ft.dropdown.Option("Gradas"),
                 ft.dropdown.Option("Otro"),
             ],
@@ -221,6 +224,8 @@ class Menu(ft.Column):
             self.txtLugar.visible = False
             self.tipoPagotxt.visible = False
             self.btnEnviar.text = "Registrar"
+            self.mensajeWhats = False
+
 
             
         
@@ -326,23 +331,29 @@ class Menu(ft.Column):
     def lugar_dropdown_changed(self, e):
         self.lugar = self.lugarDropdown.value
         self.page.update()
-        if(self.lugar=="Cafeteria"):
+        if(self.lugar=="Cafetería"):
             self.lugarField.visible = False
             self.page.update()
+            self.lugarMessage = "cafetería"
         elif(self.lugar=="Gradas"):
             self.lugarField.visible = False
+            self.lugarMessage = "gradas"
             self.page.update()
-        elif(self.lugar=="En mi Aula"):
+        elif(self.lugar=="En mi aula"):
             self.lugarField.visible = False
             self.lugar = self.aula
             self.page.update()
-        elif(self.lugar=="En Ingles"):
+            self.lugarMessage = self.aula+" salon "+self.salon
+            print(self.aula)
+        elif(self.lugar=="En ingles"):
             self.lugarField.visible = False
             self.lugar = self.aula_ingles
             self.page.update()
+            self.lugarMessage = self.aula_ingles+" salon "+self.salon_ingles
         elif(self.lugar=="Otro"):
             self.lugarField.visible = True
             self.page.update()
+            
         
         
 
@@ -387,12 +398,15 @@ class Menu(ft.Column):
              
 
     def click_enviar(self, e):
+        if self.lugarDropdown.value == "Otro":
+            self.lugarMessage = self.lugarField.value
         self.db.connect()
         self.id_pedido = self.db.registrar_pedido(self.idUsuario, self.fieldTotal.value)
         self.db.registrar_detalle_pedido(self.id_pedido, 1, int(self.fieldRojo.value), int(self.fieldRojo.value)*15)
         self.db.registrar_detalle_pedido(self.id_pedido, 2, int(self.fieldVerde.value), int(self.fieldVerde.value)*15)
         self.db.registrar_detalle_pedido(self.id_pedido, self.ids_productos[self.verificarCodigo()], int(self.fieldOtro.value), int(self.fieldOtro.value)*self.precioPorBurroEspecial())
-        #self.whatsapp.enviarMensaje()
+        if self.mensajeWhats:
+            self.whatsapp.enviarMensaje(nombre=self.nombre, burritosRojoCantidad=self.fieldRojo.value, burritosVerdeCantidad=self.fieldVerde.value, burritoDia=self.verificarDia(), burritoDiaCantidad=self.fieldOtro.value, lugar=self.lugarMessage, tipoDePago=self.tipoPago, Total=self.fieldTotal.value)
         snackBar = ft.SnackBar(ft.Text("Enviado", color=ft.Colors.WHITE),bgcolor=ft.Colors.GREEN)
         self.page.open(snackBar)
         self.page.update()

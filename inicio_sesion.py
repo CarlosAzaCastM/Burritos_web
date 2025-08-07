@@ -4,7 +4,7 @@ from db import Database
 
 
 class InicioSesion(ft.Column):
-    def __init__(self, on_login_success, on_go_to_register, on_audio,db: Database):
+    def __init__(self, on_login_success, on_go_to_register, on_developer,db: Database):
         super().__init__()
         self.db = db
         
@@ -71,11 +71,11 @@ class InicioSesion(ft.Column):
         # Mensaje de error
         self.error_message = ft.Text(color=ft.Colors.RED, visible=False)
 
-        self.speakerIcon = ft.IconButton(icon=ft.Icons.VOLUME_UP, icon_color=ft.Colors.BLACK, on_click=on_audio)
+        self.infoIcon = ft.IconButton(icon=ft.Icons.INFO, icon_color=ft.Colors.BLACK, on_click=on_developer)
         
         # Configuración de controles
         self.controls = [
-            self.speakerIcon,
+            self.infoIcon,
             self.espacioArriba,
             self.img_control,
             self.txtTitle,
